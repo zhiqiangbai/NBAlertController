@@ -15,6 +15,11 @@
 		44CC22831D374D38004230A4 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 44CC22811D374D38004230A4 /* LaunchScreen.storyboard */; };
 		44CC228E1D374D38004230A4 /* NBAlertControllerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 44CC228D1D374D38004230A4 /* NBAlertControllerTests.m */; };
 		44CC22991D374D38004230A4 /* NBAlertControllerUITests.m in Sources */ = {isa = PBXBuildFile; fileRef = 44CC22981D374D38004230A4 /* NBAlertControllerUITests.m */; };
+		44CC22A91D374E76004230A4 /* NBAlertView.m in Sources */ = {isa = PBXBuildFile; fileRef = 44CC22A81D374E76004230A4 /* NBAlertView.m */; };
+		44CC22AC1D374E8F004230A4 /* NBAlertAction.m in Sources */ = {isa = PBXBuildFile; fileRef = 44CC22AB1D374E8F004230A4 /* NBAlertAction.m */; };
+		44CC22AF1D374EA6004230A4 /* NBAlertButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 44CC22AE1D374EA6004230A4 /* NBAlertButton.m */; };
+		44CC22B61D374EF6004230A4 /* NBAlertController.m in Sources */ = {isa = PBXBuildFile; fileRef = 44CC22B51D374EF6004230A4 /* NBAlertController.m */; };
+		44CC22B91D3796A4004230A4 /* NBAlertButtonView.m in Sources */ = {isa = PBXBuildFile; fileRef = 44CC22B81D3796A4004230A4 /* NBAlertButtonView.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -51,6 +56,16 @@
 		44CC22941D374D38004230A4 /* NBAlertControllerUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = NBAlertControllerUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		44CC22981D374D38004230A4 /* NBAlertControllerUITests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = NBAlertControllerUITests.m; sourceTree = "<group>"; };
 		44CC229A1D374D38004230A4 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		44CC22A71D374E76004230A4 /* NBAlertView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NBAlertView.h; path = views/NBAlertView.h; sourceTree = "<group>"; };
+		44CC22A81D374E76004230A4 /* NBAlertView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NBAlertView.m; path = views/NBAlertView.m; sourceTree = "<group>"; };
+		44CC22AA1D374E8F004230A4 /* NBAlertAction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NBAlertAction.h; path = views/NBAlertAction.h; sourceTree = "<group>"; };
+		44CC22AB1D374E8F004230A4 /* NBAlertAction.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NBAlertAction.m; path = views/NBAlertAction.m; sourceTree = "<group>"; };
+		44CC22AD1D374EA6004230A4 /* NBAlertButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NBAlertButton.h; path = views/NBAlertButton.h; sourceTree = "<group>"; };
+		44CC22AE1D374EA6004230A4 /* NBAlertButton.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NBAlertButton.m; path = views/NBAlertButton.m; sourceTree = "<group>"; };
+		44CC22B41D374EF6004230A4 /* NBAlertController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NBAlertController.h; path = controller/NBAlertController.h; sourceTree = "<group>"; };
+		44CC22B51D374EF6004230A4 /* NBAlertController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NBAlertController.m; path = controller/NBAlertController.m; sourceTree = "<group>"; };
+		44CC22B71D3796A4004230A4 /* NBAlertButtonView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = NBAlertButtonView.h; path = views/NBAlertButtonView.h; sourceTree = "<group>"; };
+		44CC22B81D3796A4004230A4 /* NBAlertButtonView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = NBAlertButtonView.m; path = views/NBAlertButtonView.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -101,6 +116,8 @@
 		44CC22721D374D38004230A4 /* NBAlertController */ = {
 			isa = PBXGroup;
 			children = (
+				44CC22B31D374EDB004230A4 /* controller */,
+				44CC22A61D374E2D004230A4 /* views */,
 				44CC22761D374D38004230A4 /* AppDelegate.h */,
 				44CC22771D374D38004230A4 /* AppDelegate.m */,
 				44CC22791D374D38004230A4 /* ViewController.h */,
@@ -138,6 +155,30 @@
 				44CC229A1D374D38004230A4 /* Info.plist */,
 			);
 			path = NBAlertControllerUITests;
+			sourceTree = "<group>";
+		};
+		44CC22A61D374E2D004230A4 /* views */ = {
+			isa = PBXGroup;
+			children = (
+				44CC22A71D374E76004230A4 /* NBAlertView.h */,
+				44CC22A81D374E76004230A4 /* NBAlertView.m */,
+				44CC22AA1D374E8F004230A4 /* NBAlertAction.h */,
+				44CC22AB1D374E8F004230A4 /* NBAlertAction.m */,
+				44CC22AD1D374EA6004230A4 /* NBAlertButton.h */,
+				44CC22AE1D374EA6004230A4 /* NBAlertButton.m */,
+				44CC22B71D3796A4004230A4 /* NBAlertButtonView.h */,
+				44CC22B81D3796A4004230A4 /* NBAlertButtonView.m */,
+			);
+			name = views;
+			sourceTree = "<group>";
+		};
+		44CC22B31D374EDB004230A4 /* controller */ = {
+			isa = PBXGroup;
+			children = (
+				44CC22B41D374EF6004230A4 /* NBAlertController.h */,
+				44CC22B51D374EF6004230A4 /* NBAlertController.m */,
+			);
+			name = controller;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -270,9 +311,14 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				44CC22B61D374EF6004230A4 /* NBAlertController.m in Sources */,
+				44CC22AF1D374EA6004230A4 /* NBAlertButton.m in Sources */,
 				44CC227B1D374D38004230A4 /* ViewController.m in Sources */,
 				44CC22781D374D38004230A4 /* AppDelegate.m in Sources */,
+				44CC22AC1D374E8F004230A4 /* NBAlertAction.m in Sources */,
+				44CC22B91D3796A4004230A4 /* NBAlertButtonView.m in Sources */,
 				44CC22751D374D38004230A4 /* main.m in Sources */,
+				44CC22A91D374E76004230A4 /* NBAlertView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
