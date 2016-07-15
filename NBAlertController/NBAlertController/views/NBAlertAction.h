@@ -7,6 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
+#import <UIKit/UIKit.h>
 
 typedef NS_ENUM(NSInteger, NBAlertActionStyle) {
     NBAlertActionStyleDefault,
@@ -26,6 +27,10 @@ typedef void(^CallBackHandler)();
  *  回执事件
  */
 @property (nonatomic, copy)CallBackHandler mCallBack;
+/**
+ *  文字颜色
+ */
+@property (nonatomic, copy)UIColor *tintColor;
 
 /**
  *  按钮风格
@@ -40,5 +45,14 @@ typedef void(^CallBackHandler)();
  *
  */
 + (instancetype)actionWithTitle:(NSString *)title style:(NBAlertActionStyle)style handler:(CallBackHandler)callBack;
+/**
+ *    创建一个 action
+ *    @param title   标题
+ *    @param tintColor 文字颜色
+ *    @param style   风格
+ *    @param callBack 回调事件
+ *
+ */
++ (instancetype)actionWithTitle:(NSString *)title color:(UIColor *)tintColor style:(NBAlertActionStyle)style handler:(CallBackHandler)callBack;
 
 @end

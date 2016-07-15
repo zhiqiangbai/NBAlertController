@@ -10,25 +10,25 @@
 #import "NBAlertAction.h"
 #import "NBalertButton.h"
 
+#define NB_NSIGNLE_PX (1 / [UIScreen mainScreen].scale)
+
 /**
  *  间距
  */
-const static CGFloat padding = 15.0;
-/**
- *  弹窗总宽度
- */
-const static CGFloat alertWidth = 280;
-/**
- *  内容视图
- */
-const static CGFloat containerWidth = alertWidth - 2 * padding;
+const static CGFloat padding = 15.0f;
 
-const static CGFloat scrollViewWidth = containerWidth - 2*padding;
+const static CGFloat alertViewWidth = 270.0f;
+
+const static CGFloat containerWidth = alertViewWidth - 2 * padding;
 
 /**
  *  按钮高度
  */
-const static CGFloat buttonHeight = 44.0;
+const static CGFloat buttonHeight = 44.0f;
+
+const static NSUInteger maxButtonCount = 6;
+
+const static CGFloat bottomViewMaxHeight = maxButtonCount * (buttonHeight+1) + padding;
 
 @interface NBAlertView ()
 /**
@@ -40,14 +40,15 @@ const static CGFloat buttonHeight = 44.0;
  *  保存按钮的数组
  */
 @property (nonatomic, strong)NSMutableArray<NBAlertButton *> *buttons;
+
 /**
- *  scrollView 外层容器视图
+ *  顶部滚动视图<title,message>
  */
-@property (nonatomic, strong)UIView *containerView;
+@property (nonatomic, strong)UIScrollView *topScrollView;
 /**
- *  滚动视图
+ *  底部滚动视图<button>
  */
-@property (nonatomic, strong)UIScrollView *scrollView;
+@property (nonatomic, strong)UIScrollView *bottomScrollView;
 /**
  *  标题
  */
@@ -76,28 +77,28 @@ const static CGFloat buttonHeight = 44.0;
     return _actions;
 }
 
+
 - (_Nonnull instancetype)initWithTitle:(NSString * _Nullable)title message:(NSString * _Nullable)message {
     self = [super init];
     if (!self) { return nil; };
     
     self.layer.cornerRadius = 6;
     self.clipsToBounds = YES;
-    self.backgroundColor = [UIColor colorWithWhite:0.9 alpha:1];
+    self.backgroundColor = [UIColor whiteColor];
     
-    // 初始化
-    _containerView = [[UIView alloc] init];
-    _scrollView = [[UIScrollView alloc] init];
-    _titleLabel = [[UILabel alloc] init];
-    _messageLabel = [[UILabel alloc] init];
+    self.topScrollView = [UIScrollView new];
+    self.bottomScrollView = [UIScrollView new];
+    self.titleLabel = [UILabel new];
+    self.messageLabel = [UILabel new];
+    
+    [self.bottomScrollView setBackgroundColor:[UIColor groupTableViewBackgroundColor]];
+    self.bottomScrollView.bounces = NO;
     
     // 添加到父视图
-    [self addSubview:_containerView];
-    [_containerView addSubview:_scrollView];
-    [_scrollView addSubview:_titleLabel];
-    [_scrollView addSubview:_messageLabel];
-    
-    // 设置 containerView
-    _containerView.backgroundColor = [UIColor whiteColor];
+    [self addSubview:self.topScrollView];
+    [self addSubview:self.bottomScrollView];
+    [self.topScrollView addSubview:self.titleLabel];
+    [self.topScrollView addSubview:self.messageLabel];
     
     // 设置 titleLabel
     _titleLabel.text = title;
@@ -113,36 +114,88 @@ const static CGFloat buttonHeight = 44.0;
     
     self.titleLabel.translatesAutoresizingMaskIntoConstraints = NO;
     self.messageLabel.translatesAutoresizingMaskIntoConstraints = NO;
-    self.scrollView.translatesAutoresizingMaskIntoConstraints = NO;
-    self.containerView.translatesAutoresizingMaskIntoConstraints = NO;
+    self.topScrollView.translatesAutoresizingMaskIntoConstraints = NO;
+    self.bottomScrollView.translatesAutoresizingMaskIntoConstraints = NO;
     
-    NSDictionary *viewDicts = NSDictionaryOfVariableBindings(_titleLabel,_messageLabel,_scrollView,_containerView);
+    NSDictionary *viewDicts = NSDictionaryOfVariableBindings(_titleLabel,_messageLabel,_topScrollView,_bottomScrollView);
     
-    CGFloat titleHeight = [_titleLabel sizeThatFits:CGSizeMake(scrollViewWidth, 0)].height;
-    CGFloat messageHeight = [_messageLabel sizeThatFits:CGSizeMake(scrollViewWidth, 0)].height;
+    CGFloat titleHeight = [_titleLabel sizeThatFits:CGSizeMake(containerWidth, 0)].height;
+    CGFloat messageHeight = [_messageLabel sizeThatFits:CGSizeMake(containerWidth, 0)].height;
     
     CGFloat scrollViewHeight = titleHeight + messageHeight +padding*2;
     
-    [_scrollView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-15-[_titleLabel(scrollViewWidth)]-15-|" options:NSLayoutFormatAlignAllCenterX metrics:@{@"scrollViewWidth":@(scrollViewWidth)} views:viewDicts]];
-    [_scrollView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-15-[_messageLabel(scrollViewWidth)]-15-|" options:NSLayoutFormatAlignAllCenterX metrics:@{@"scrollViewWidth":@(scrollViewWidth)} views:viewDicts]];
-    [_scrollView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-10-[_titleLabel(titleHeight)]-5-[_messageLabel(messageHeight)]-15-|" options:0 metrics:@{@"titleHeight":@(titleHeight),@"messageHeight":@(messageHeight)} views:viewDicts]];
+    NSDictionary *metrics = @{@"containerWidth":@(containerWidth),@"padding":@(padding),@"titleHeight":@(titleHeight),@"messageHeight":@(messageHeight),@"bottomViewMaxHeight":@(bottomViewMaxHeight),@"alertWidth":@(alertViewWidth),@"scrollViewHeight":@(scrollViewHeight)};
     
-    [_containerView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-[_scrollView(containerWidth)]-|" options:0 metrics:@{@"containerWidth":@(containerWidth)} views:viewDicts]];
-    [_containerView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-[_scrollView(scrollViewHeight)]-|" options:0 metrics:@{@"scrollViewHeight":@(scrollViewHeight)} views:viewDicts]];
+    [self.topScrollView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[_titleLabel(containerWidth)]" options:0 metrics:metrics views:viewDicts]];
+    [self.topScrollView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[_messageLabel(containerWidth)]" options:0 metrics:metrics views:viewDicts]];
+    [self.topScrollView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-10-[_titleLabel(titleHeight)]-padding-[_messageLabel(messageHeight)]|" options:0 metrics:metrics views:viewDicts]];
     
-    [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-0-[_containerView]-0-|" options:0 metrics:nil views:viewDicts]];
-    [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-0-[_containerView]-0-|" options:0 metrics:nil views:viewDicts]];
+    //self.topScrollView.height = screen.height-50- self.bottomScrollView.height
+    //self.bottomScrollView.height <= count*button.height + 15
+    [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-padding-[_topScrollView]-padding-|" options:0 metrics:metrics views:viewDicts]];
+    [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[_bottomScrollView]|" options:0 metrics:metrics views:viewDicts]];
+    [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-[_topScrollView(scrollViewHeight@100)]-padding-[_bottomScrollView]|" options:0 metrics:metrics views:viewDicts]];
     
-    // 添加约束 self
-    CGFloat maxHeight = [UIScreen mainScreen].bounds.size.height - 100.0;
-    self.translatesAutoresizingMaskIntoConstraints = NO;
-    [NSLayoutConstraint constraintWithItem:self
-                                 attribute:NSLayoutAttributeHeight
-                                 relatedBy:NSLayoutRelationLessThanOrEqual
-                                    toItem:nil
-                                 attribute:NSLayoutAttributeNotAnAttribute
-                                multiplier:1.0
-                                  constant:maxHeight].active = YES;
+    return self;
+}
+
+
+- (_Nonnull instancetype)initWithTitle:(NSString * _Nullable)title customView:(UIView * _Nullable)cusView{
+    self = [super init];
+    if (!self) { return nil; };
+
+    
+    self.layer.cornerRadius = 6;
+    self.clipsToBounds = YES;
+    self.backgroundColor = [UIColor whiteColor];
+    
+    self.topScrollView = [UIScrollView new];
+    self.bottomScrollView = [UIScrollView new];
+    self.titleLabel = [UILabel new];
+    
+    [self.bottomScrollView setBackgroundColor:[UIColor groupTableViewBackgroundColor]];
+    self.bottomScrollView.bounces = NO;
+    
+    
+    // 添加到父视图
+    [self addSubview:self.topScrollView];
+    [self addSubview:self.bottomScrollView];
+    [self.topScrollView addSubview:self.titleLabel];
+    [self.topScrollView addSubview:cusView];
+    
+    // 设置 titleLabel
+    _titleLabel.text = title;
+    _titleLabel.textAlignment = NSTextAlignmentCenter;
+    _titleLabel.numberOfLines = 0;
+    _titleLabel.font = [UIFont boldSystemFontOfSize:17.0];
+
+    
+    self.titleLabel.translatesAutoresizingMaskIntoConstraints = NO;
+    cusView.translatesAutoresizingMaskIntoConstraints = NO;
+    self.topScrollView.translatesAutoresizingMaskIntoConstraints = NO;
+    self.bottomScrollView.translatesAutoresizingMaskIntoConstraints = NO;
+    
+    NSDictionary *viewDicts = NSDictionaryOfVariableBindings(_titleLabel,cusView,_topScrollView,_bottomScrollView);
+    
+    CGFloat titleHeight = [_titleLabel sizeThatFits:CGSizeMake(containerWidth, 0)].height;
+    
+//    [cusView layoutIfNeeded];
+    CGFloat cusHeight = [cusView systemLayoutSizeFittingSize:UILayoutFittingCompressedSize].height;
+
+    
+    CGFloat scrollViewHeight = titleHeight + cusHeight +padding*2;
+    
+    NSDictionary *metrics = @{@"containerWidth":@(containerWidth),@"padding":@(padding),@"titleHeight":@(titleHeight),@"cusHeight":@(cusHeight),@"bottomViewMaxHeight":@(bottomViewMaxHeight),@"alertWidth":@(alertViewWidth),@"scrollViewHeight":@(scrollViewHeight)};
+    
+    [self.topScrollView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[_titleLabel(containerWidth)]" options:0 metrics:metrics views:viewDicts]];
+    [self.topScrollView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[cusView(containerWidth)]" options:0 metrics:metrics views:viewDicts]];
+    [self.topScrollView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-10-[_titleLabel(titleHeight)]-padding-[cusView(cusHeight)]|" options:0 metrics:metrics views:viewDicts]];
+    
+    //self.topScrollView.height = screen.height-50- self.bottomScrollView.height
+    //self.bottomScrollView.height <= count*button.height + 15
+    [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-padding-[_topScrollView]-padding-|" options:0 metrics:metrics views:viewDicts]];
+    [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[_bottomScrollView]|" options:0 metrics:metrics views:viewDicts]];
+    [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-[_topScrollView(scrollViewHeight@100)]-padding-[_bottomScrollView]|" options:0 metrics:metrics views:viewDicts]];
     
     return self;
 }
@@ -159,7 +212,7 @@ const static CGFloat buttonHeight = 44.0;
     [actionButton addTarget:self action:@selector(actionButtonDidClicked:) forControlEvents:UIControlEventTouchUpInside];
     
     // 添加到父视图
-    [self addSubview:actionButton];
+    [self.bottomScrollView addSubview:actionButton];
     
     // 添加到 button数组
     [self.buttons addObject:actionButton];
@@ -169,8 +222,12 @@ const static CGFloat buttonHeight = 44.0;
     
 }
 
-/** 点击按钮事件 */
-- (void)actionButtonDidClicked:(UIButton *)sender {
+/**
+ *  按钮点击事件
+ *
+ *  @param sender 被点击的按钮
+ */
+- (void)actionButtonDidClicked:(NBAlertButton *)sender {
     
     // 根据 tag 取到 handler
     void (^handler) () = self.actions[sender.tag].mCallBack;
@@ -205,141 +262,67 @@ const static CGFloat buttonHeight = 44.0;
     return YES;
 }
 
-/** 两个 button 时的水平布局 */
+/**
+ *  水平布局<只有两个Button时调用>
+ */
 - (void)layoutButtonsHorizontal {
     
     UIButton *leftButton = self.buttons[0];
     UIButton *rightButton = self.buttons[1];
-    
-    // 左边按钮
     leftButton.translatesAutoresizingMaskIntoConstraints = NO;
-    [NSLayoutConstraint constraintWithItem:leftButton
-                                 attribute:NSLayoutAttributeHeight
-                                 relatedBy:NSLayoutRelationEqual
-                                    toItem:nil
-                                 attribute:NSLayoutAttributeNotAnAttribute
-                                multiplier:1.0
-                                  constant:buttonHeight].active = YES;
-    [NSLayoutConstraint constraintWithItem:leftButton
-                                 attribute:NSLayoutAttributeLeft
-                                 relatedBy:NSLayoutRelationEqual
-                                    toItem:self
-                                 attribute:NSLayoutAttributeLeft
-                                multiplier:1.0
-                                  constant:0.0].active = YES;
-    [NSLayoutConstraint constraintWithItem:leftButton
-                                 attribute:NSLayoutAttributeTop
-                                 relatedBy:NSLayoutRelationEqual
-                                    toItem:_containerView
-                                 attribute:NSLayoutAttributeBottom
-                                multiplier:1.0
-                                  constant:0.5].active = YES;
-    
-    // 右边按钮
     rightButton.translatesAutoresizingMaskIntoConstraints = NO;
-    [NSLayoutConstraint constraintWithItem:rightButton
-                                 attribute:NSLayoutAttributeHeight
-                                 relatedBy:NSLayoutRelationEqual
-                                    toItem:nil
-                                 attribute:NSLayoutAttributeNotAnAttribute
-                                multiplier:1.0
-                                  constant:buttonHeight].active = YES;
-    [NSLayoutConstraint constraintWithItem:rightButton
-                                 attribute:NSLayoutAttributeRight
-                                 relatedBy:NSLayoutRelationEqual
-                                    toItem:self
-                                 attribute:NSLayoutAttributeRight
-                                multiplier:1.0
-                                  constant:0.0].active = YES;
-    [NSLayoutConstraint constraintWithItem:rightButton
-                                 attribute:NSLayoutAttributeTop
-                                 relatedBy:NSLayoutRelationEqual
-                                    toItem:_containerView
-                                 attribute:NSLayoutAttributeBottom
-                                multiplier:1.0
-                                  constant:0.5].active = YES;
-    [NSLayoutConstraint constraintWithItem:rightButton
-                                 attribute:NSLayoutAttributeLeft
-                                 relatedBy:NSLayoutRelationEqual
-                                    toItem:leftButton
-                                 attribute:NSLayoutAttributeRight
-                                multiplier:1.0 constant:0.5].active = YES;
-    [NSLayoutConstraint constraintWithItem:rightButton
-                                 attribute:NSLayoutAttributeWidth
-                                 relatedBy:NSLayoutRelationEqual
-                                    toItem:leftButton
-                                 attribute:NSLayoutAttributeWidth
-                                multiplier:1.0
-                                  constant:0.0].active = YES;
     
-    // 设置 alert 底部约束
-    [NSLayoutConstraint constraintWithItem:self
-                                 attribute:NSLayoutAttributeBottom
-                                 relatedBy:NSLayoutRelationEqual
-                                    toItem:rightButton
-                                 attribute:NSLayoutAttributeBottom
-                                multiplier:1.0
-                                  constant:0.0].active = YES;
+    NSDictionary *views = NSDictionaryOfVariableBindings(leftButton,rightButton);
+    NSDictionary *metrics = @{@"buttonHeight":@(buttonHeight),@"buttonWidth":@((alertViewWidth-NB_NSIGNLE_PX)/2.0),@"bottomViewHeight":@(buttonHeight+NB_NSIGNLE_PX),@"signleWidth":@(NB_NSIGNLE_PX)};
     
+    [self.bottomScrollView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[leftButton(buttonWidth)]-signleWidth-[rightButton(leftButton)]|" options:0 metrics:metrics views:views]];
+    [self.bottomScrollView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-signleWidth-[leftButton(buttonHeight)]|" options:0 metrics:metrics views:views]];
+    [self.bottomScrollView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-signleWidth-[rightButton(buttonHeight)]|" options:0 metrics:metrics views:views]];
     
+    [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:[_bottomScrollView(bottomViewHeight)]" options:0 metrics:metrics views:@{@"_bottomScrollView":_bottomScrollView}]];
 }
 
-/** 垂直布局 */
+/**
+ *  垂直布局<只要不是两个按钮,都会进入>
+ */
 - (void)layoutButtonsVertical {
     
     // 记录最下面的一个view
     UIView *lastView;
     
-    // 遍历在数组中的button，添加到alert上
-    for(UIButton *button in self.buttons) {
+    NSDictionary *metrics = @{@"buttonHeight":@(buttonHeight),@"alertWidth":@(alertViewWidth),@"bottomViewHeight":@(self.buttons.count * (buttonHeight+NB_NSIGNLE_PX) + padding),@"bottomViewMaxHeight":@(bottomViewMaxHeight),@"padding":@(padding+NB_NSIGNLE_PX),@"signleWidth":@(NB_NSIGNLE_PX)};
+    
+    // 遍历在数组中的button，重新调整位置
+    for(int i = 0;i<self.buttons.count;i++) {
+        UIButton *button = self.buttons[i];
+        button.translatesAutoresizingMaskIntoConstraints = NO;
         
         if(!lastView) {
-            lastView = _containerView;
+            //如果是第一个Button
+            [self.bottomScrollView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[button(==alertWidth)]|" options:0 metrics:metrics views:NSDictionaryOfVariableBindings(button)]];
+            //当只有一个button时会进入
+            if (i == self.buttons.count-1) {
+                [self.bottomScrollView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|[button(==buttonHeight)]|" options:0 metrics:metrics views:NSDictionaryOfVariableBindings(button)]];
+            }else{
+                [self.bottomScrollView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|[button(==buttonHeight)]" options:0 metrics:metrics views:NSDictionaryOfVariableBindings(button)]];
+            }
+        }else{
+            [self.bottomScrollView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[button(==alertWidth)]|" options:0 metrics:metrics views:NSDictionaryOfVariableBindings(button,lastView)]];
+            //最后一个button时进入
+            if (i == self.buttons.count-1) {
+                [self.bottomScrollView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:[lastView]-padding-[button(==buttonHeight)]|" options:0 metrics:metrics views:NSDictionaryOfVariableBindings(button,lastView)]];
+            }else{
+                [self.bottomScrollView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:[lastView]-signleWidth-[button(==buttonHeight)]" options:0 metrics:metrics views:NSDictionaryOfVariableBindings(button,lastView)]];
+            }
         }
-        
-        button.translatesAutoresizingMaskIntoConstraints = NO;
-        [NSLayoutConstraint constraintWithItem:button
-                                     attribute:NSLayoutAttributeLeft
-                                     relatedBy:NSLayoutRelationEqual
-                                        toItem:self
-                                     attribute:NSLayoutAttributeLeft
-                                    multiplier:1.0
-                                      constant:0.0].active = YES;
-        [NSLayoutConstraint constraintWithItem:button
-                                     attribute:NSLayoutAttributeRight
-                                     relatedBy:NSLayoutRelationEqual
-                                        toItem:self
-                                     attribute:NSLayoutAttributeRight
-                                    multiplier:1.0
-                                      constant:0.0].active = YES;
-        [NSLayoutConstraint constraintWithItem:button
-                                     attribute:NSLayoutAttributeHeight
-                                     relatedBy:NSLayoutRelationEqual
-                                        toItem:nil
-                                     attribute:NSLayoutAttributeNotAnAttribute
-                                    multiplier:1.0
-                                      constant:buttonHeight].active = YES;
-        [NSLayoutConstraint constraintWithItem:button
-                                     attribute:NSLayoutAttributeTop
-                                     relatedBy:NSLayoutRelationEqual
-                                        toItem:lastView
-                                     attribute:NSLayoutAttributeBottom
-                                    multiplier:1.0
-                                      constant:0.5].active = YES;
-        
         lastView = button;
-        
     }
+    //更新bottomScrollView的高度
+    [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:[_bottomScrollView(bottomViewHeight@750,<=bottomViewMaxHeight@1000)]" options:0 metrics:metrics views:@{@"_bottomScrollView":_bottomScrollView}]];
     
-    // 设置 alert 底部约束
-    [NSLayoutConstraint constraintWithItem:self
-                                 attribute:NSLayoutAttributeBottom
-                                 relatedBy:NSLayoutRelationEqual
-                                    toItem:lastView
-                                 attribute:NSLayoutAttributeBottom
-                                multiplier:1.0
-                                  constant:0.0].active = YES;
+    
 }
+
 
 
 @end

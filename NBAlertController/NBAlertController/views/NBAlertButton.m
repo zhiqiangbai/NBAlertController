@@ -23,7 +23,7 @@
 + (instancetype)buttonWithAction:(NBAlertAction *)alertAction{
     NBAlertButton *actionButton = [NBAlertButton buttonWithType:UIButtonTypeCustom];
     [actionButton setTitle:alertAction.title forState:UIControlStateNormal];
-    [actionButton setTitleColor:[UIColor colorWithRed:0.0 green:122.0/255.0 blue:1 alpha:1] forState:UIControlStateNormal];
+    [actionButton setTitleColor:alertAction.tintColor forState:UIControlStateNormal];
     [actionButton.titleLabel setFont:[UIFont systemFontOfSize:15]];
     [actionButton setBackgroundImage:[NBAlertButton createImageWithColor:[UIColor whiteColor]] forState:UIControlStateNormal];
     [actionButton setBackgroundImage:[NBAlertButton createImageWithColor:[[UIColor lightGrayColor] colorWithAlphaComponent:.3]] forState:UIControlStateHighlighted];
