@@ -16,6 +16,7 @@ typedef NS_ENUM(NSInteger, NBAlertActionStyle) {
 };
 
 typedef void(^CallBackHandler)();
+typedef BOOL(^AutoDismiss)();
 
 @interface NBAlertAction : NSObject
 /**
@@ -24,9 +25,16 @@ typedef void(^CallBackHandler)();
 @property (nonatomic, copy)NSString *title;
 
 /**
- *  回执事件
+ *  Alert dismiss执行回调事件
  */
 @property (nonatomic, copy)CallBackHandler mCallBack;
+/**
+ *  点击按钮是否自动dismiss<不设置则自动>
+ */
+@property (nonatomic, copy)AutoDismiss mAutoDismiss;
+
+
+
 /**
  *  文字颜色
  */
@@ -54,5 +62,29 @@ typedef void(^CallBackHandler)();
  *
  */
 + (instancetype)actionWithTitle:(NSString *)title color:(UIColor *)tintColor style:(NBAlertActionStyle)style handler:(CallBackHandler)callBack;
+/**
+ *  如果需要手动控制Alert的dismiss,则调用这个
+ *
+ *    @param title   标题
+ *    @param style   风格
+ *    @param autoDismiss  这个block返回YES,则视为自动dismiss
+ *    @param callBack 回调事件
+ *
+ *  @return
+ */
++ (instancetype)actionWithTitle:(NSString *)title style:(NBAlertActionStyle)style autoDimiss:(AutoDismiss)autoDismiss handler:(CallBackHandler)callBack;
+/**
+ *  如果需要手动控制Alert的dismiss,则调用这个
+ *
+ *    @param title   标题
+ *    @param tintColor 文字颜色
+ *    @param style   风格
+ *    @param autoDismiss  这个block返回YES,则视为自动dismiss
+ *    @param callBack 回调事件
+ *
+ *  @return
+ */
++ (instancetype)actionWithTitle:(NSString *)title color:(UIColor *)tintColor style:(NBAlertActionStyle)style autoDismiss:(AutoDismiss)autoDismiss handler:(CallBackHandler)callBack;
+
 
 @end

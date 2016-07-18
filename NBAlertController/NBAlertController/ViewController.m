@@ -74,7 +74,13 @@
     if (indexPath.row == 5) {
         NBAlertController *cusAlert = [NBAlertController alertWithTitle:@"温馨提示" customView:[self customView]];
         
-        [cusAlert addActions:@[defaultAction,cancelAction]];
+        NBAlertAction *sureAction = [NBAlertAction actionWithTitle:@"确定" color:[UIColor redColor] style:NBAlertActionStyleDefault autoDismiss:^BOOL{
+            return arc4random()%2==1;
+        } handler:^{
+            NSLog(@"点击===>>>");
+        }];
+        
+        [cusAlert addActions:@[sureAction,cancelAction]];
 
         // 可以设置 alertView 的圆角半径，默认为6
         cusAlert.alertViewCornerRadius = 10;
@@ -122,12 +128,13 @@
         default:
             break;
     }
+    //创建Alert对象,并传入标题和提示消息内容
     NBAlertController *alert = [NBAlertController alertWithTitle:@"温馨提示"
                                                          message:message];
     
     // 可以设置 alertView 的圆角半径，默认为6
     alert.alertViewCornerRadius = 10;
-    // 一次性添加
+    // 一次性添加action,同时也提供了  addAction 添加单个
     [alert addActions:actionArrays];
 
     [self presentViewController:alert animated:YES completion:nil];

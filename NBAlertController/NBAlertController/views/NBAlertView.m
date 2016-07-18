@@ -198,10 +198,16 @@ const static CGFloat bottomViewMaxHeight = maxButtonCount * (buttonHeight+1) + p
  */
 - (void)actionButtonDidClicked:(NBAlertButton *)sender {
     
-    // 根据 tag 取到 handler
-    void (^handler) () = self.actions[sender.tag].mCallBack;
-    if (handler) {
-        handler();
+    NBAlertAction *action = self.actions[sender.tag];
+    if (action.mAutoDismiss) {
+        //说明是手动处理了Alert的dismiss
+        if (!action.mAutoDismiss()) {
+            return;
+        }
+    }
+    // 根据 tag 取到 回执事件
+    if (action.mCallBack) {
+        action.mCallBack();
     }
     
     // 点击button后自动dismiss
