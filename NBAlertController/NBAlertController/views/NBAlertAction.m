@@ -16,7 +16,7 @@
 
 + (instancetype)actionWithTitle:(NSString *)title color:(UIColor *)tintColor style:(NBAlertActionStyle)style handler:(CallBackHandler)callBack{
     
-    return [NBAlertAction actionWithTitle:title color:[UIColor colorWithRed:0.0 green:122.0/255.0 blue:1 alpha:1] style:style autoDismiss:nil handler:callBack];
+    return [NBAlertAction actionWithTitle:title color:tintColor style:style autoDismiss:nil handler:callBack];
 }
 
 + (instancetype)actionWithTitle:(NSString *)title style:(NBAlertActionStyle)style autoDimiss:(AutoDismiss)autoDismiss handler:(CallBackHandler)callBack{
