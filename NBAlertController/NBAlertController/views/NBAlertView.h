@@ -24,7 +24,13 @@
  *    @param message 提示文字内容
  */
 - (_Nonnull instancetype)initWithTitle:(NSString * _Nullable)title message:(NSString * _Nullable)message;
-
+/**
+ *  初始化 AlertView
+ *
+ *  @param title   标题
+ *  @param cusView 自定义视图
+ *
+ */
 - (_Nonnull instancetype)initWithTitle:(NSString * _Nullable)title customView:(UIView * _Nullable)cusView;
 
 /**

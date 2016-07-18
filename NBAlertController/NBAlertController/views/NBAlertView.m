@@ -79,71 +79,17 @@ const static CGFloat bottomViewMaxHeight = maxButtonCount * (buttonHeight+1) + p
 
 
 - (_Nonnull instancetype)initWithTitle:(NSString * _Nullable)title message:(NSString * _Nullable)message {
-    self = [super init];
-    if (!self) { return nil; };
-    
-    self.layer.cornerRadius = 6;
-    self.clipsToBounds = YES;
-    self.backgroundColor = [UIColor whiteColor];
-    
-    self.topScrollView = [UIScrollView new];
-    self.bottomScrollView = [UIScrollView new];
-    self.titleLabel = [UILabel new];
-    self.messageLabel = [UILabel new];
-    
-    [self.bottomScrollView setBackgroundColor:[UIColor groupTableViewBackgroundColor]];
-    self.bottomScrollView.bounces = NO;
-    
-    // 添加到父视图
-    [self addSubview:self.topScrollView];
-    [self addSubview:self.bottomScrollView];
-    [self.topScrollView addSubview:self.titleLabel];
-    [self.topScrollView addSubview:self.messageLabel];
-    
-    // 设置 titleLabel
-    _titleLabel.text = title;
-    _titleLabel.textAlignment = NSTextAlignmentCenter;
-    _titleLabel.numberOfLines = 0;
-    _titleLabel.font = [UIFont boldSystemFontOfSize:17.0];
-    
-    // 设置 messageLabel
-    _messageLabel.text = message;
-    _messageLabel.textAlignment = NSTextAlignmentCenter;
-    _messageLabel.numberOfLines = 0;
-    _messageLabel.font = [UIFont systemFontOfSize:13.0];
-    
-    self.titleLabel.translatesAutoresizingMaskIntoConstraints = NO;
-    self.messageLabel.translatesAutoresizingMaskIntoConstraints = NO;
-    self.topScrollView.translatesAutoresizingMaskIntoConstraints = NO;
-    self.bottomScrollView.translatesAutoresizingMaskIntoConstraints = NO;
-    
-    NSDictionary *viewDicts = NSDictionaryOfVariableBindings(_titleLabel,_messageLabel,_topScrollView,_bottomScrollView);
-    
-    CGFloat titleHeight = [_titleLabel sizeThatFits:CGSizeMake(containerWidth, 0)].height;
-    CGFloat messageHeight = [_messageLabel sizeThatFits:CGSizeMake(containerWidth, 0)].height;
-    
-    CGFloat scrollViewHeight = titleHeight + messageHeight +padding*2;
-    
-    NSDictionary *metrics = @{@"containerWidth":@(containerWidth),@"padding":@(padding),@"titleHeight":@(titleHeight),@"messageHeight":@(messageHeight),@"bottomViewMaxHeight":@(bottomViewMaxHeight),@"alertWidth":@(alertViewWidth),@"scrollViewHeight":@(scrollViewHeight)};
-    
-    [self.topScrollView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[_titleLabel(containerWidth)]" options:0 metrics:metrics views:viewDicts]];
-    [self.topScrollView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[_messageLabel(containerWidth)]" options:0 metrics:metrics views:viewDicts]];
-    [self.topScrollView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-10-[_titleLabel(titleHeight)]-padding-[_messageLabel(messageHeight)]|" options:0 metrics:metrics views:viewDicts]];
-    
-    //self.topScrollView.height = screen.height-50- self.bottomScrollView.height
-    //self.bottomScrollView.height <= count*button.height + 15
-    [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-padding-[_topScrollView]-padding-|" options:0 metrics:metrics views:viewDicts]];
-    [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[_bottomScrollView]|" options:0 metrics:metrics views:viewDicts]];
-    [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-[_topScrollView(scrollViewHeight@100)]-padding-[_bottomScrollView]|" options:0 metrics:metrics views:viewDicts]];
-    
-    return self;
+    return [self initWithTitle:title message:message customView:nil];
 }
 
 
 - (_Nonnull instancetype)initWithTitle:(NSString * _Nullable)title customView:(UIView * _Nullable)cusView{
+    return [self initWithTitle:title message:nil customView:cusView];
+}
+
+- (_Nonnull instancetype)initWithTitle:(NSString * _Nullable)title message:(NSString *_Nullable)message customView:(UIView * _Nullable)cusView{
     self = [super init];
     if (!self) { return nil; };
-
     
     self.layer.cornerRadius = 6;
     self.clipsToBounds = YES;
@@ -161,41 +107,64 @@ const static CGFloat bottomViewMaxHeight = maxButtonCount * (buttonHeight+1) + p
     [self addSubview:self.topScrollView];
     [self addSubview:self.bottomScrollView];
     [self.topScrollView addSubview:self.titleLabel];
-    [self.topScrollView addSubview:cusView];
     
     // 设置 titleLabel
     _titleLabel.text = title;
     _titleLabel.textAlignment = NSTextAlignmentCenter;
     _titleLabel.numberOfLines = 0;
     _titleLabel.font = [UIFont boldSystemFontOfSize:17.0];
-
+    
     
     self.titleLabel.translatesAutoresizingMaskIntoConstraints = NO;
-    cusView.translatesAutoresizingMaskIntoConstraints = NO;
     self.topScrollView.translatesAutoresizingMaskIntoConstraints = NO;
     self.bottomScrollView.translatesAutoresizingMaskIntoConstraints = NO;
     
-    NSDictionary *viewDicts = NSDictionaryOfVariableBindings(_titleLabel,cusView,_topScrollView,_bottomScrollView);
+    
+    NSDictionary *viewDicts;
     
     CGFloat titleHeight = [_titleLabel sizeThatFits:CGSizeMake(containerWidth, 0)].height;
     
-//    [cusView layoutIfNeeded];
-    CGFloat cusHeight = [cusView systemLayoutSizeFittingSize:UILayoutFittingCompressedSize].height;
+    CGFloat contentHeight;
 
+    if (cusView) {
+        //自定义视图
+        [self.topScrollView addSubview:cusView];
+        cusView.translatesAutoresizingMaskIntoConstraints = NO;
+        
+        viewDicts = @{@"_titleLabel":_titleLabel,@"contentView":cusView,@"_topScrollView":_topScrollView,@"_bottomScrollView":_bottomScrollView};//  NSDictionaryOfVariableBindings(_titleLabel,cusView,_topScrollView,_bottomScrollView);
+
+        contentHeight = [cusView systemLayoutSizeFittingSize:UILayoutFittingCompressedSize].height;
+    }else{
+        self.messageLabel = [UILabel new];
+        
+        [self.topScrollView addSubview:self.messageLabel];
+        // 设置 messageLabel
+        _messageLabel.text = message;
+        _messageLabel.textAlignment = NSTextAlignmentCenter;
+        _messageLabel.numberOfLines = 0;
+        _messageLabel.font = [UIFont systemFontOfSize:13.0];
+        
+        self.messageLabel.translatesAutoresizingMaskIntoConstraints = NO;
+        
+        viewDicts = @{@"_titleLabel":_titleLabel,@"contentView":_messageLabel,@"_topScrollView":_topScrollView,@"_bottomScrollView":_bottomScrollView};// NSDictionaryOfVariableBindings(_titleLabel,_messageLabel,_topScrollView,_bottomScrollView);
+        
+        contentHeight = [_messageLabel sizeThatFits:CGSizeMake(containerWidth, 0)].height;
+
+    }
     
-    CGFloat scrollViewHeight = titleHeight + cusHeight +padding*2;
-    
-    NSDictionary *metrics = @{@"containerWidth":@(containerWidth),@"padding":@(padding),@"titleHeight":@(titleHeight),@"cusHeight":@(cusHeight),@"bottomViewMaxHeight":@(bottomViewMaxHeight),@"alertWidth":@(alertViewWidth),@"scrollViewHeight":@(scrollViewHeight)};
+    CGFloat scrollViewHeight = titleHeight + contentHeight +padding*2;
+    NSDictionary *metrics = @{@"containerWidth":@(containerWidth),@"padding":@(padding),@"titleHeight":@(titleHeight),@"contentHeight":@(contentHeight),@"bottomViewMaxHeight":@(bottomViewMaxHeight),@"alertWidth":@(alertViewWidth),@"scrollViewHeight":@(scrollViewHeight)};
     
     [self.topScrollView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[_titleLabel(containerWidth)]" options:0 metrics:metrics views:viewDicts]];
-    [self.topScrollView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[cusView(containerWidth)]" options:0 metrics:metrics views:viewDicts]];
-    [self.topScrollView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-10-[_titleLabel(titleHeight)]-padding-[cusView(cusHeight)]|" options:0 metrics:metrics views:viewDicts]];
+    [self.topScrollView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[contentView(containerWidth)]" options:0 metrics:metrics views:viewDicts]];
+    [self.topScrollView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-10-[_titleLabel(titleHeight)]-padding-[contentView(contentHeight)]|" options:0 metrics:metrics views:viewDicts]];
     
     //self.topScrollView.height = screen.height-50- self.bottomScrollView.height
     //self.bottomScrollView.height <= count*button.height + 15
     [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-padding-[_topScrollView]-padding-|" options:0 metrics:metrics views:viewDicts]];
     [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[_bottomScrollView]|" options:0 metrics:metrics views:viewDicts]];
     [self addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-[_topScrollView(scrollViewHeight@100)]-padding-[_bottomScrollView]|" options:0 metrics:metrics views:viewDicts]];
+
     
     return self;
 }
