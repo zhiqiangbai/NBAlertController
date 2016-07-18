@@ -29,6 +29,16 @@
     其中的 [self customView];即为自定义视图的函数.可在demo中查看
     
 ```
+#手动管理对话框Dismiss
+```Objective-c
+    NBAlertAction *sureAction = [NBAlertAction actionWithTitle:@"确定" color:[UIColor redColor] style:NBAlertActionStyleDefault autoDismiss:^BOOL{
+            return arc4random()%2==1;
+        } handler:^{
+            NSLog(@"点击===>>>");
+    }];
+    对AlertAction增加了AutoDismiss属性,默认不调用为自动处理dismiss事件,如果需要手动管理对话框的dismis,就在创建AlertAction时,  
+    选用带有AutoDismiss参数的构造函数即可.return NO;意味着不能dismiss,return YES;才意味着可以dismiss,所以很多事情都可以在这里面处理.
+```
 #其他
 目前即可这样简单使用,可替代UIAlertView和UIAlertController的Alert模式,暂未支持UIActionSheet模式的对话框,后期再加入.
 反正就是使用简单,操作方便,想改就改,就是这么任性
